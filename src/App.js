@@ -1,25 +1,48 @@
-import logo from './logo.svg';
+import { useState } from 'react'
+import { useTime, useTimeOnce } from './useTime.js'
+import Button from 'react-bootstrap/Button'
+import BreakTime from './BreakTime'
 import './App.css';
 
+function at(arr, pos = -1) {
+  return arr[pos >= 0 ? pos : arr.length + pos]
+}
+
+let many = 0
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+  const [events, setEvents] = useState([])
+  const [seconds, getTime] = useTime(ms => null)
+
+  function handleEvent() {
+    setEvents(events => [...events, getTime()])
+  }
+
+  const working = events.length % 2 !== 0
+  const lastWorked = events.length >= 2 && !working ? at(events) - at(events, -2) : null
+
+  if (events.length === 0) {
+    return (
+      <div className="App">
+        <Button onClick={handleEvent}>
+          Start Working
+        </Button>
+      </div>
+    );
+  } else if (events.length % 2 === 0) {
+    return (
+      <div className="App">
+        <BreakTime events={events} onStartWorking={handleEvent} />
+      </div>
+    );
+  } else {
+    return (
+      <div className="App">
+        <Button onClick={handleEvent}>
+          Take a Break
+        </Button>
+      </div>
+    );
+  }
 }
 
 export default App;
